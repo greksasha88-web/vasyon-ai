@@ -3,33 +3,58 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def run_agent(prompt: str):
-    prompt_lower = prompt.lower()
+memory = []
 
-    if "нарисуй" in prompt_lower:
+def run_agent(prompt: str):
+    global memory
+
+    memory.append({"role": "user", "content": prompt})
+
+    # 🧠 AI решает что делать
+    decision = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": """
+Ты AI-агент. Твоя задача — выбрать действие.
+
+Ответь ТОЛЬКО одним словом:
+text — если нужно ответить текстом
+image — если нужно создать картинку
+video — если нужно найти видео
+solve — если это задача/решение
+
+Никаких объяснений.
+"""
+            },
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    action = decision.choices[0].message.content.strip().lower()
+
+    # ⚡ выбор действия
+    if action == "image":
         return generate_image(prompt)
 
-    if "видео" in prompt_lower:
+    if action == "video":
         return find_video(prompt)
 
-    if "реши" in prompt_lower:
+    if action == "solve":
         return solve_problem(prompt)
 
     return smart_answer(prompt)
 
 
-memory = []
-
 def smart_answer(prompt):
     global memory
-
-    memory.append({"role": "user", "content": prompt})
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "Ты мощный AI как ChatGPT"}
-        ] + memory[-100:]  # последние 100 сообщений
+        ] + memory[-20:]
     )
 
     answer = response.choices[0].message.content
@@ -39,11 +64,6 @@ def smart_answer(prompt):
     return {
         "type": "text",
         "result": answer
-    }
-
-    return {
-        "type": "text",
-        "result": response.choices[0].message.content
     }
 
 
