@@ -1,20 +1,29 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import HTMLResponse
 from agent_v2 import run_agent
 
 app = FastAPI()
 
+
 class Task(BaseModel):
     text: str
+
 
 @app.post("/run")
 def run(task: Task):
     result = run_agent(task.text)
+
+    # если агент вернул словарь
+    if isinstance(result, dict):
+        return result
+
+    # если просто текст
     return {
-        "result": result.get("result", ""),
-        "files": result.get("files", [])
+        "type": "text",
+        "result": result
     }
-    from fastapi.responses import HTMLResponse
+
 
 @app.get("/", response_class=HTMLResponse)
 def home():
