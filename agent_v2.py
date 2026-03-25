@@ -18,14 +18,28 @@ def run_agent(prompt: str):
     return smart_answer(prompt)
 
 
+memory = []
+
 def smart_answer(prompt):
+    global memory
+
+    memory.append({"role": "user", "content": prompt})
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Ты мощный AI как ChatGPT"},
-            {"role": "user", "content": prompt}
-        ]
+            {"role": "system", "content": "Ты мощный AI как ChatGPT"}
+        ] + memory[-100:]  # последние 100 сообщений
     )
+
+    answer = response.choices[0].message.content
+
+    memory.append({"role": "assistant", "content": answer})
+
+    return {
+        "type": "text",
+        "result": answer
+    }
 
     return {
         "type": "text",
