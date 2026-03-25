@@ -17,8 +17,24 @@ def run_agent(prompt: str):
 
 
 # 💬 умный текст
+import openai
+
+openai.api_key = "ТВОЙ_API_KEY"
+
+
 def smart_answer(prompt):
-    return f"🧠 Умный ответ:\n\n{prompt}\n\n(сюда подключим мощный AI позже)"
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Ты супер умный AI, отвечаешь четко, круто и понятно"},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    return {
+        "type": "text",
+        "result": response.choices[0].message.content
+    }
 
 
 # 🎨 картинка
