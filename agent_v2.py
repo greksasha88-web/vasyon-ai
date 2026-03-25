@@ -10,27 +10,51 @@ def run_agent(prompt: str):
 
     memory.append({"role": "user", "content": prompt})
 
-    # 🧠 AI решает что делать
-    decision = client.chat.completions.create(
+    # 🧠 планирование
+    plan = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
                 "content": """
-Ты AI-агент. Твоя задача — выбрать действие.
+Ты автономный AI-агент.
 
-Ответь ТОЛЬКО одним словом:
-text — если нужно ответить текстом
-image — если нужно создать картинку
-video — если нужно найти видео
-solve — если это задача/решение
+Разбей задачу на шаги.
+Ответь списком действий.
 
-Никаких объяснений.
+Пример:
+1. Найти информацию
+2. Проанализировать
+3. Дать ответ
 """
             },
             {"role": "user", "content": prompt}
         ]
     )
+
+    steps = plan.choices[0].message.content
+
+    # ⚡ выполнение
+    execution = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": "Ты выполняешь план шаг за шагом и даешь итог"
+            },
+            {"role": "user", "content": f"Задача: {prompt}\nПлан:\n{steps}"}
+        ]
+    )
+
+    result = execution.choices[0].message.content
+
+    memory.append({"role": "assistant", "content": result})
+
+    return {
+        "type": "agent",
+        "plan": steps,
+        "result": result
+    }
 
     action = decision.choices[0].message.content.strip().lower()
 
