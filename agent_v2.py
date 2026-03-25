@@ -1,4 +1,7 @@
-import requests
+import openai
+
+openai.api_key = "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"
+
 
 def run_agent(prompt: str):
     prompt_lower = prompt.lower()
@@ -16,18 +19,19 @@ def run_agent(prompt: str):
     return smart_answer(prompt)
 
 
-# 💬 умный текст
-import openai
-
-openai.api_key = "ТВОЙ_API_KEY"
-
-
+# 💬 умный текст (РЕАЛЬНЫЙ AI)
 def smart_answer(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Ты супер умный AI, отвечаешь четко, круто и понятно"},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "Ты ультра умный AI. Отвечай четко, красиво, понятно и как топ продукт."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
         ]
     )
 
@@ -37,7 +41,7 @@ def smart_answer(prompt):
     }
 
 
-# 🎨 картинка
+# 🎨 картинка (пока заглушка)
 def generate_image(prompt):
     return {
         "type": "image",
