@@ -1,7 +1,7 @@
-import openai
+import os
+from openai import OpenAI
 
-openai.api_key = "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"
-
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def run_agent(prompt: str):
     prompt_lower = prompt.lower()
