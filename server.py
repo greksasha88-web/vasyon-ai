@@ -14,11 +14,9 @@ class Task(BaseModel):
 def run(task: Task):
     result = run_agent(task.text)
 
-    # если агент вернул словарь
     if isinstance(result, dict):
         return result
 
-    # если просто текст
     return {
         "type": "text",
         "result": result
